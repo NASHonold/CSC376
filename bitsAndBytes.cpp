@@ -76,7 +76,7 @@ ipAddress userIP; //creates the union and subordinate structure
             cout<< "As four values: "<< userIP.parts.left << "." 
             << userIP.parts.leftMiddle << "." 
             << userIP.parts.rightMiddle << "." 
-            << userIP.parts.right;\
+            << userIP.parts.right;
             break;
 
         case 3:
