@@ -24,14 +24,38 @@ using namespace std;
 
 //that should get me started
 
+//==================== string flipString() ====================
+//takes a given string and returns the reverse
+string flipString(string toFlip){
+    int length = toFlip.size();
+    string flipped;
+    for (length; length >= 0 ;length--){
+        flipped += toFlip[length];
+    }
+    return flipped;
+
+}
+//==================== string toBinary() =======================
+string toBinary(int decimal){
+    int original = decimal;
+    int remainder;
+    string storage;
+    while(decimal != 0){
+        remainder = decimal % 2;
+        decimal = decimal / 2;
+        storage += to_string(remainder);
+    }
+    return flipString(storage);
+}
+
 
 struct regAccInd {     //Accumulator and Index registers
     union {
         struct {
-            unsigned int right8 : 4;
-            unsigned int left8 : 4;
+            unsigned int right8 : 8;
+            unsigned int left8 : 8;
         };
-        unsigned int full : 8;
+        unsigned int full : 16;
     };
 };
 
@@ -61,17 +85,20 @@ typedef union {
             unsigned int left8 : 8;
         };
         unsigned int full : 16;
-    } oSpec, operand, tempValue, tempAddress;
+    } bit16Struct;
 
-
+//opSpec, operand, tempValue, tempAddress
 
 struct Registers{
+
 unsigned int programCounter : 16;
 regAccInd accumulator;
 regAccInd index;
 instructions instruct;
-
-
+bit16Struct oSpec;
+bit16Struct operand;
+bit16Struct tempAddress;
+bit16Struct tempVal;
 
 
 
@@ -99,7 +126,7 @@ inputFile.open(fileName);
 if(inputFile.is_open()){
     selection = true;
 }else{
-    cout << "\n***********************************\n"<<
+    cout << "\n\n***********************************\n"<<
     "That is not a valid file name or\n" <<  
     "the file you input is not found!\n" <<
     "Try again...\n"<<
@@ -110,7 +137,7 @@ if(inputFile.is_open()){
 cout << "Instructions have been loaded..." << 
 "\nPerforming operations...\n\n"<< endl;
 
-int mainMem[10000];
+int mainMem[10000];//setting up memory 
 int x;
 int mainMemIndex = 0;
 
@@ -123,6 +150,102 @@ if(!inputFile.is_open()){
     }
 }
 
+//create the cpu 
+Registers cpu;
+cpu.programCounter = 0;
+cpu.accumulator.full = 0;
+cpu.index.full = 0;
+cpu.instruct.full = 0;
+cpu.oSpec.full = 0;
+cpu.operand.full = 0;
+cpu.tempAddress.full = 0;
+cpu.tempVal.full = 0;
+
+/*
+testing code------
+*/
+
+int testValue = 232;
+cout << "THis is the testValue of 232 in hex: " << hex << testValue << endl;
+cpu.accumulator.full = 49155;
+cout << "Binary of the accumulator: " << toBinary(cpu.accumulator.full) << endl;
+cout << "Current value in accumulator in hex: " << hex << cpu.accumulator.full << endl;
+
+mainMem[0] = 30;
+
+cout << "This is the first index of mem in hex:" << hex << mainMem[0]<< endl;
+
+char testChar = 'A';
+int charInt = testChar;
+cout<< dec << charInt << endl;
+
+/*
+testing code------
+*/
+
+
+
+//read in the first byte into cpu
+cpu.instruct.full = mainMem[cpu.programCounter++];
+
+while(cpu.instruct.full != 0){
+
+    if(cpu.instruct.arith.instr4 == 1){// this checks for unary operator
+        cpu.operand.full = 0;
+        bool toIndex = cpu.instruct.unary.r1;// boolean check for where the unary operator is pointing to
+
+        if(cpu.instruct.unary.instr7 == 12){//bitwise invert r
+            if(toIndex){
+                cpu.index.full = ~cpu.index.full;
+            }else{
+                cpu.accumulator.full = ~cpu.accumulator.full;
+            }
+
+        }else if(cpu.instruct.unary.instr7 == 14){//shift left r
+            if(toIndex){
+                cpu.index.full = cpu.index.full << 1;
+            }else{
+                cpu.accumulator.full = cpu.accumulator.full << 1;
+            }
+
+        }else{//shift right r
+            cout << "Shifting right-->" << endl;
+            if(toIndex){
+                cpu.index.full = cpu.index.full >> 1; 
+            }else{
+                cpu.accumulator.full = cpu.accumulator.full >> 1;
+            }
+        }
+    }
+
+    if(cpu.instruct.arith.instr4 == 2){
+        cpu.operand.full = 0;
+        bool toIndex = cpu.instruct.unary.r1;// boolean check for where the unary operator is pointing to
+        if(cpu.instruct.unary.instr7 == 16){// rotation to left
+            if(toIndex){
+                cpu.index.full = (cpu.index.full << 1) + (cpu.index.full >> 15);
+            }else{
+                cpu.accumulator.full = (cpu.accumulator.full << 1) + (cpu.accumulator.full >> 15);
+            }
+        }else if( cpu.instruct.unary.instr7 == 17){// rotation to right
+            if(toIndex){// points to index
+                cpu.index.full = (cpu.index.full >> 1) + (cpu.index.full << 15);
+            }else{// points to accumulator
+                cpu.accumulator.full = (cpu.accumulator.full >> 1) + (cpu.accumulator.full << 15);
+            }
+        }
+     // now we need to do the 2 traps
+
+     // character i/o
+
+
+    }
+    cpu.instruct.full = mainMem[cpu.programCounter++];
+
+}
+cout <<"This is accumulator after inversion in hex: "<< hex << cpu.accumulator.full<< endl;
+cout <<"This is accumulator after inversion in dec: "<< dec << cpu.accumulator.full<< endl;
+cout << "Binary of the accumulator: " << toBinary(cpu.accumulator.full) << endl;
 
 // I have taken in the instructions and assigned them to memory 
 // need to have a way to print out the register values 
