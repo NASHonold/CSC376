@@ -173,7 +173,6 @@ int main(int argc, char const *argv[])
 
     while (cpu.instruct.full != 0)
     {
-   
         bool directAddress;
         bool regSelect;
 
@@ -284,6 +283,7 @@ int main(int argc, char const *argv[])
             if (cpu.instruct.ioTrap.instr5 == 6)
             { // only direct addressing
                 int input;
+                cout << "Input: "; //get decimal input from user. Prompt is for ease of use
                 cin >> input;
                 cout << endl;
 
@@ -303,7 +303,6 @@ int main(int argc, char const *argv[])
 
                     cpu.operand.left8 = mainMem[cpu.tempAddress.full];
                     cpu.operand.right8 = mainMem[cpu.tempAddress.full + 1];
-
                     cpu.tempVal.full = cpu.operand.full;
 
                 }
@@ -313,7 +312,7 @@ int main(int argc, char const *argv[])
                     cpu.tempVal.full = cpu.operand.full;
                 }
 
-                cout << "Decimal Output: " << cpu.tempVal.full << endl;
+                cout << cpu.tempVal.full << endl;
             }
             printDetails(cpu, mainMem);
         }
@@ -347,20 +346,20 @@ int main(int argc, char const *argv[])
                 charOut = (char)cpu.operand.full;
             }
 
-            cout << "Character Output: " << charOut << endl;
+            cout << charOut;
             printDetails(cpu, mainMem);
         }
 
-        if (cpu.instruct.arith.instr4 == 7)// Add to R
+        if (cpu.instruct.arith.instr4 == 7)// Add
         {
 
-            if (regSelect)// add to Index Register
+            if (regSelect)
             {
-                if (!directAddress) // immediate addressing mode
+                if (!directAddress)
                 {
                     cpu.iRegister.full += cpu.operand.full;
                 }
-                else// direct addressing 
+                else
                 {
 
                     cpu.operand.left8 = mainMem[cpu.tempAddress.full];
@@ -369,32 +368,37 @@ int main(int argc, char const *argv[])
                     //this is direct addressing to index register
                 }
             }
-            else// add to Accumulator regiseter
-            { 
-                if (!directAddress) // immediate addressing mode
+            else
+            { //accumulator selected
+                if (!directAddress)
                 {
                     cpu.accumulator.full += cpu.operand.full;
                 }
-                else// direct addressing
+                else
                 {
+
                     cpu.operand.left8 = mainMem[cpu.tempAddress.full];
                     cpu.operand.right8 = mainMem[cpu.tempAddress.full + 1];
                     cpu.accumulator.full += cpu.operand.full;
+                    //this is direct addressing to accumulator
                 }
             }
             printDetails(cpu, mainMem);
         }
 
+
         if (cpu.instruct.arith.instr4 == 8)
         {
-            if (regSelect)// Index register selected
+
+            if (regSelect)
             {
-                if (!directAddress)//
+                if (!directAddress)
                 {
                     cpu.iRegister.full -= cpu.operand.full;
                 }
                 else
                 {
+
                     cpu.operand.left8 = mainMem[cpu.tempAddress.full];
                     cpu.operand.right8 = mainMem[cpu.tempAddress.full + 1];
                     cpu.iRegister.full -= cpu.operand.full;
@@ -402,7 +406,7 @@ int main(int argc, char const *argv[])
                 }
             }
             else
-            { // Accumulator selected
+            { //accumulator selected
                 if (!directAddress)
                 {
                     cpu.accumulator.full -= cpu.operand.full;
