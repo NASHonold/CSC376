@@ -173,9 +173,7 @@ int main(int argc, char const *argv[])
 
     while (cpu.instruct.full != 0)
     {
-        cout << "\n\n====================== New Instruct =====================" << endl;
-        cout << "This is current 4 bit instruct : " << hex << cpu.instruct.full << endl;
-        cout << "this is the accumulator at the start of the while loop: " << cpu.accumulator.full << endl;
+   
         bool directAddress;
         bool regSelect;
 
@@ -208,7 +206,6 @@ int main(int argc, char const *argv[])
             }
             else
             { //shift right r
-                cout << "Shifting right-->" << endl;
                 if (toIndex)
                 {
                     cpu.iRegister.full = cpu.iRegister.full >> 1;
@@ -350,7 +347,7 @@ int main(int argc, char const *argv[])
                 charOut = (char)cpu.operand.full;
             }
 
-            cout << "Character Output: " << charOut;
+            cout << "Character Output: " << charOut << endl;
             printDetails(cpu, mainMem);
         }
 
